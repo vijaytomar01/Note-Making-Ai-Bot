@@ -1,3 +1,4 @@
+
 # 🤖 AI Note-Making App
 
 A modern, intelligent note-taking application built for students with AI-powered features, rich text editing, and smart organization capabilities.
