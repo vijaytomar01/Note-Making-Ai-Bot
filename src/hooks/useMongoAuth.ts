@@ -20,12 +20,14 @@ export function useMongoAuth() {
     // Check for stored token on mount
     const storedToken = localStorage.getItem('auth_token');
     const storedUser = localStorage.getItem('auth_user');
-    
+
     if (storedToken && storedUser) {
       setToken(storedToken);
       setUser(JSON.parse(storedUser));
+      // Also set cookie for middleware
+      document.cookie = `auth-token=${storedToken}; path=/; max-age=${7 * 24 * 60 * 60}`; // 7 days
     }
-    
+
     setLoading(false);
   }, []);
 
@@ -47,7 +49,10 @@ export function useMongoAuth() {
     // Store token and user data
     localStorage.setItem('auth_token', data.token);
     localStorage.setItem('auth_user', JSON.stringify(data.user));
-    
+
+    // Also set cookie for middleware
+    document.cookie = `auth-token=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}`; // 7 days
+
     setToken(data.token);
     setUser(data.user);
 
@@ -55,6 +60,8 @@ export function useMongoAuth() {
   };
 
   const signIn = async (email: string, password: string) => {
+    console.log('🔐 useMongoAuth: Starting signIn process...');
+
     const response = await fetch('/api/auth/login', {
       method: 'POST',
       headers: {
@@ -63,19 +70,28 @@ export function useMongoAuth() {
       body: JSON.stringify({ email, password }),
     });
 
+    console.log('📡 Login response status:', response.status);
+
     const data = await response.json();
 
     if (!response.ok) {
+      console.error('❌ Login failed:', data);
       throw new Error(data.error || 'Login failed');
     }
+
+    console.log('✅ Login successful, received data:', { user: data.user.email, hasToken: !!data.token });
 
     // Store token and user data
     localStorage.setItem('auth_token', data.token);
     localStorage.setItem('auth_user', JSON.stringify(data.user));
-    
+
+    // Also set cookie for middleware
+    document.cookie = `auth-token=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}`; // 7 days
+
     setToken(data.token);
     setUser(data.user);
 
+    console.log('💾 Auth state updated successfully');
     return data;
   };
 
@@ -83,7 +99,10 @@ export function useMongoAuth() {
     // Clear stored data
     localStorage.removeItem('auth_token');
     localStorage.removeItem('auth_user');
-    
+
+    // Clear cookie
+    document.cookie = 'auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+
     setToken(null);
     setUser(null);
   };

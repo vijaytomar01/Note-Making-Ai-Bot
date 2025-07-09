@@ -61,5 +61,337 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  cursor: default;
+  overflow-x: hidden;
+  line-height: 1.6;
+  font-weight: 400;
+}
+
+/* Light Colorful Interactive Background */
+.colorful-bg {
+  background: linear-gradient(-45deg,
+    #fef7f0, #f8f4ff, #f0f9ff, #f0fdf4,
+    #fefce8, #fdf2f8, #f3f4f6, #ecfdf5,
+    #fff7ed, #faf5ff, #eff6ff, #f9fafb);
+  background-size: 400% 400%;
+  animation: gradientShift 20s ease infinite;
+  position: relative;
+  overflow: hidden;
+  min-height: 100vh;
+}
+
+/* Dynamic Background Animation */
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  25% {
+    background-position: 100% 50%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  75% {
+    background-position: 0% 100%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Light Interactive Hover Zones */
+.hover-zone {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+  pointer-events: none;
+  transition: all 0.3s ease;
+  opacity: 0;
+}
+
+.hover-zone.active {
+  opacity: 1;
+  transform: scale(1.5);
+}
+
+/* Custom Animations */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes gradient-x {
+  0%, 100% {
+    background-size: 200% 200%;
+    background-position: left center;
+  }
+  50% {
+    background-size: 200% 200%;
+    background-position: right center;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(59, 130, 246, 0.5);
+  }
+}
+
+@keyframes rainbow-border {
+  0% {
+    border-color: #3b82f6;
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+  }
+  16.66% {
+    border-color: #10b981;
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+  }
+  33.33% {
+    border-color: #8b5cf6;
+    box-shadow: 0 0 15px rgba(139, 92, 246, 0.2);
+  }
+  50% {
+    border-color: #f59e0b;
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.2);
+  }
+  66.66% {
+    border-color: #ef4444;
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
+  }
+  83.33% {
+    border-color: #06b6d4;
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.2);
+  }
+  100% {
+    border-color: #3b82f6;
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+  }
+}
+
+@keyframes color-shift {
+  0% { background: linear-gradient(45deg, #3b82f6, #10b981); }
+  25% { background: linear-gradient(45deg, #10b981, #8b5cf6); }
+  50% { background: linear-gradient(45deg, #8b5cf6, #f59e0b); }
+  75% { background: linear-gradient(45deg, #f59e0b, #ef4444); }
+  100% { background: linear-gradient(45deg, #ef4444, #3b82f6); }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out forwards;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.8s ease-out forwards;
+}
+
+.animate-gradient-x {
+  animation: gradient-x 3s ease infinite;
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.delay-100 {
+  animation-delay: 0.1s;
+}
+
+.delay-200 {
+  animation-delay: 0.2s;
+}
+
+.delay-300 {
+  animation-delay: 0.3s;
+}
+
+.delay-400 {
+  animation-delay: 0.4s;
+}
+
+.delay-500 {
+  animation-delay: 0.5s;
+}
+
+/* Colorful Hover Effects */
+.hover-lift {
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+  overflow: hidden;
+}
+
+.hover-lift::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.hover-lift:hover::before {
+  left: 100%;
+}
+
+.hover-lift:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), 0 0 30px rgba(255, 107, 107, 0.2);
+}
+
+/* Light Glass Effect */
+.glass {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.glass::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  background: linear-gradient(45deg, #3b82f6, #10b981, #8b5cf6, #f59e0b, #ef4444, #06b6d4);
+  border-radius: inherit;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  animation: rainbow-border 4s linear infinite;
+  opacity: 0.6;
+}
+
+/* Colorful Gradient Text */
+.gradient-text {
+  background: linear-gradient(45deg, #3b82f6, #10b981, #8b5cf6, #f59e0b, #ef4444, #06b6d4);
+  background-size: 300% 300%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradient-x 4s ease infinite;
+  font-weight: 700;
+}
+
+/* Interactive Button Styles */
+.btn-colorful {
+  background: linear-gradient(45deg, #3b82f6, #10b981);
+  border: none;
+  color: white;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.btn-colorful::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, #8b5cf6, #f59e0b, #ef4444, #06b6d4);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.btn-colorful:hover::before {
+  opacity: 1;
+}
+
+.btn-colorful:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+}
+
+/* Card Hover Effects */
+.card-hover {
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.card-hover:hover {
+  transform: translateY(-8px) rotateX(3deg);
+  border-color: #3b82f6;
+  box-shadow:
+    0 15px 35px rgba(0, 0, 0, 0.1),
+    0 0 20px rgba(59, 130, 246, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* Text Visibility and Contrast */
+.text-dark {
+  color: #1f2937 !important;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+.text-dark-secondary {
+  color: #4b5563 !important;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+.text-white-contrast {
+  color: #ffffff !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  font-weight: 500;
+}
+
+/* Better Button Contrast */
+.btn-light {
+  background: rgba(255, 255, 255, 0.9);
+  color: #1f2937;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  font-weight: 600;
+  text-shadow: none;
+}
+
+.btn-light:hover {
+  background: rgba(255, 255, 255, 1);
+  color: #1f2937;
+  border-color: #3b82f6;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Header Improvements */
+.header-glass {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }

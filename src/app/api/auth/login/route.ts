@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { userDb } from '@/lib/filedb';
+import { connectToDatabase } from '@/lib/mongodb';
+import User from '@/models/User';
 import { signToken } from '@/lib/jwt';
 
 export async function POST(request: NextRequest) {
   try {
+    await connectToDatabase();
+
     const { email, password } = await request.json();
 
     // Validate input
@@ -15,7 +18,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Find user by email
-    const user = await userDb.findByEmail(email);
+    const user = await User.findOne({ email });
     if (!user) {
       return NextResponse.json(
         { error: 'Invalid email or password' },
@@ -24,7 +27,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check password
-    const isPasswordValid = await userDb.comparePassword(user, password);
+    const isPasswordValid = await user.comparePassword(password);
     if (!isPasswordValid) {
       return NextResponse.json(
         { error: 'Invalid email or password' },
@@ -34,14 +37,14 @@ export async function POST(request: NextRequest) {
 
     // Generate JWT token
     const token = signToken({
-      userId: user.id,
+      userId: user._id.toString(),
       email: user.email,
     });
 
     // Return user data and token (without password)
     return NextResponse.json({
       user: {
-        id: user.id,
+        id: user._id.toString(),
         email: user.email,
         fullName: user.fullName,
         avatarUrl: user.avatarUrl,

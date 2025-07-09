@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useRouter } from 'next/navigation';
 import { useMongoAuth } from '@/hooks/useMongoAuth';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -26,6 +27,7 @@ export function LoginForm({ onToggleMode, onSuccess }: LoginFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { signIn } = useMongoAuth();
+  const router = useRouter();
 
   const {
     register,
@@ -39,9 +41,27 @@ export function LoginForm({ onToggleMode, onSuccess }: LoginFormProps) {
     try {
       setIsLoading(true);
       setError(null);
+
+      console.log('🔐 Attempting login with:', data.email);
+
+      // Sign in the user
       await signIn(data.email, data.password);
-      onSuccess?.();
+
+      console.log('✅ Login successful, redirecting to dashboard...');
+
+      // Close the modal first
+      if (onSuccess) {
+        onSuccess();
+      }
+
+      // Small delay to ensure state is updated
+      setTimeout(() => {
+        console.log('🚀 Redirecting to dashboard...');
+        window.location.href = '/dashboard';
+      }, 100);
+
     } catch (err) {
+      console.error('❌ Login error:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setIsLoading(false);

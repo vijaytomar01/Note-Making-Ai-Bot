@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { connectToDatabase } from '@/lib/mongodb';
 import { authenticateUser, AuthenticatedRequest } from '@/lib/auth-middleware';
-import { noteDb, categoryDb } from '@/lib/filedb';
+import Note from '@/models/Note';
 
 export async function PUT(
   request: NextRequest,
@@ -10,17 +11,23 @@ export async function PUT(
   if (authError) return authError;
 
   try {
+    await connectToDatabase();
+
     const { user } = request as AuthenticatedRequest;
     const { id } = params;
     const updates = await request.json();
 
-    // Update the note
-    const note = await noteDb.update(id, user!.id, {
-      ...(updates.title !== undefined && { title: updates.title }),
-      ...(updates.content !== undefined && { content: updates.content }),
-      ...(updates.category_id !== undefined && { categoryId: updates.category_id || undefined }),
-      ...(updates.is_favorite !== undefined && { isFavorite: updates.is_favorite }),
-    });
+    // Find and update the note
+    const note = await Note.findOneAndUpdate(
+      { _id: id, userId: user!.id },
+      {
+        ...(updates.title !== undefined && { title: updates.title }),
+        ...(updates.content !== undefined && { content: updates.content }),
+        ...(updates.category_id !== undefined && { categoryId: updates.category_id || null }),
+        ...(updates.is_favorite !== undefined && { isFavorite: updates.is_favorite }),
+      },
+      { new: true }
+    ).populate('categoryId', 'name color');
 
     if (!note) {
       return NextResponse.json(
@@ -29,30 +36,21 @@ export async function PUT(
       );
     }
 
-    // Get category info if exists
-    let category = null;
-    if (note.categoryId) {
-      const cat = await categoryDb.findById(note.categoryId);
-      if (cat) {
-        category = {
-          id: cat.id,
-          name: cat.name,
-          color: cat.color,
-        };
-      }
-    }
-
     // Transform the data
     const transformedNote = {
-      id: note.id,
+      id: note._id.toString(),
       title: note.title,
       content: note.content,
-      user_id: note.userId,
-      category_id: note.categoryId || null,
+      user_id: note.userId.toString(),
+      category_id: note.categoryId?.toString() || null,
       is_favorite: note.isFavorite,
-      created_at: note.createdAt,
-      updated_at: note.updatedAt,
-      category,
+      created_at: note.createdAt.toISOString(),
+      updated_at: note.updatedAt.toISOString(),
+      category: note.categoryId ? {
+        id: note.categoryId._id.toString(),
+        name: note.categoryId.name,
+        color: note.categoryId.color,
+      } : null,
       tags: [],
     };
 
@@ -74,13 +72,18 @@ export async function DELETE(
   if (authError) return authError;
 
   try {
+    await connectToDatabase();
+
     const { user } = request as AuthenticatedRequest;
     const { id } = params;
 
-    // Delete the note
-    const deleted = await noteDb.delete(id, user!.id);
+    // Find and delete the note
+    const note = await Note.findOneAndDelete({
+      _id: id,
+      userId: user!.id,
+    });
 
-    if (!deleted) {
+    if (!note) {
       return NextResponse.json(
         { error: 'Note not found' },
         { status: 404 }

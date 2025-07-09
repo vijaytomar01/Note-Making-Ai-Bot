@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { connectToDatabase } from '@/lib/mongodb';
 import { verifyToken, getTokenFromRequest } from '@/lib/jwt';
-import { userDb } from '@/lib/filedb';
+import User from '@/models/User';
 
 export interface AuthenticatedRequest extends NextRequest {
   user?: {
@@ -12,6 +13,8 @@ export interface AuthenticatedRequest extends NextRequest {
 
 export async function authenticateUser(request: NextRequest) {
   try {
+    await connectToDatabase();
+
     const token = getTokenFromRequest(request);
 
     if (!token) {
@@ -22,7 +25,7 @@ export async function authenticateUser(request: NextRequest) {
     }
 
     const payload = verifyToken(token);
-    const user = await userDb.findById(payload.userId);
+    const user = await User.findById(payload.userId);
 
     if (!user) {
       return NextResponse.json(
@@ -33,7 +36,7 @@ export async function authenticateUser(request: NextRequest) {
 
     // Add user to request object
     (request as AuthenticatedRequest).user = {
-      id: user.id,
+      id: user._id.toString(),
       email: user.email,
       fullName: user.fullName,
     };

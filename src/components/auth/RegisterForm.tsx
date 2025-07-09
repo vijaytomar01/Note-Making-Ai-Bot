@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useRouter } from 'next/navigation';
 import { useMongoAuth } from '@/hooks/useMongoAuth';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -32,6 +33,7 @@ export function RegisterForm({ onToggleMode, onSuccess }: RegisterFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const { signUp } = useMongoAuth();
+  const router = useRouter();
 
   const {
     register,
@@ -45,9 +47,28 @@ export function RegisterForm({ onToggleMode, onSuccess }: RegisterFormProps) {
     try {
       setIsLoading(true);
       setError(null);
+
+      console.log('📝 Attempting registration with:', data.email);
+
+      // Sign up the user
       await signUp(data.email, data.password, data.fullName);
       setSuccess(true);
+
+      console.log('✅ Registration successful, redirecting to dashboard...');
+
+      // Close the modal first
+      if (onSuccess) {
+        onSuccess();
+      }
+
+      // Small delay to ensure state is updated
+      setTimeout(() => {
+        console.log('🚀 Redirecting to dashboard...');
+        window.location.href = '/dashboard';
+      }, 100);
+
     } catch (err) {
+      console.error('❌ Registration error:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setIsLoading(false);

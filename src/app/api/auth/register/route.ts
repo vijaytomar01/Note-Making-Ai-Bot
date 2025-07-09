@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { userDb } from '@/lib/filedb';
+import { connectToDatabase } from '@/lib/mongodb';
+import User from '@/models/User';
 import { signToken } from '@/lib/jwt';
 
 export async function POST(request: NextRequest) {
   try {
+    await connectToDatabase();
+
     const { email, password, fullName } = await request.json();
 
     // Validate input
@@ -21,23 +24,34 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return NextResponse.json(
+        { error: 'User with this email already exists' },
+        { status: 400 }
+      );
+    }
+
     // Create new user
-    const user = await userDb.create({
+    const user = new User({
       email,
       password,
       fullName,
     });
 
+    await user.save();
+
     // Generate JWT token
     const token = signToken({
-      userId: user.id,
+      userId: user._id.toString(),
       email: user.email,
     });
 
     // Return user data and token (without password)
     return NextResponse.json({
       user: {
-        id: user.id,
+        id: user._id.toString(),
         email: user.email,
         fullName: user.fullName,
         avatarUrl: user.avatarUrl,
@@ -49,9 +63,9 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Registration error:', error);
 
-    if (error instanceof Error && error.message.includes('already exists')) {
+    if (error.code === 11000) {
       return NextResponse.json(
-        { error: error.message },
+        { error: 'User with this email already exists' },
         { status: 400 }
       );
     }
